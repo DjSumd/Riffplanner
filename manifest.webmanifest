@@ -1,0 +1,16 @@
+{
+ "id": "./?app=riffplanner",
+ "name": "Riff Planner",
+ "short_name": "Riff Planner",
+ "description": "Plan the generated bass lines, comping and solos for a riff-handouts set.",
+ "start_url": "./?app=riffplanner",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#1b1a1d",
+ "theme_color": "#1b1a1d",
+ "icons": [
+  {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+  {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+  {"src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+ ]
+}

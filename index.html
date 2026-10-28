@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Riff Planner</title>
+<meta name="description" content="Plan the generated bass lines, comping and solos for a riff-handouts set.">
+<meta name="theme-color" content="#1b1a1d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1b1a1d; --panel:#242226; --panel2:#2c292e; --line:#3a363c; --ink:#ece6dc; --muted:#a59e94;
+  --oxblood:#7a2531; --oxblood2:#9b3140; --brass:#c19a50; --brass2:#d9b46a; --ok:#8fae7a; --warn:#d9a24a; --bad:#d06a6a;
+  --r:10px; --display:'Cormorant Garamond', Georgia, 'Times New Roman', serif; --ui:Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.45}
+body{padding-bottom:96px}
+a{color:var(--brass2)}
+header{padding:18px 16px 10px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#232024,var(--bg))}
+header h1{font-family:var(--display);font-weight:600;font-size:34px;margin:0;letter-spacing:.01em;color:var(--brass2)}
+header p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+main{max-width:980px;margin:0 auto;padding:12px 16px}
+section.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 14px 12px;margin:14px 0}
+h2{font-family:var(--display);font-weight:600;font-size:24px;margin:0 0 8px;color:var(--ink)}
+h3{font-family:var(--display);font-weight:600;font-size:20px;margin:0}
+.row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.row+.row{margin-top:10px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);letter-spacing:.02em;min-width:0}
+input[type=text],input[type=number],select,textarea{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 9px;font:inherit;font-size:14px;min-width:0}
+textarea{width:100%;resize:vertical;min-height:58px}
+input[type=text].wide{width:100%}
+select:focus,input:focus,textarea:focus{outline:2px solid var(--brass);outline-offset:0}
+.grow{flex:1 1 220px}
+button{font:inherit;font-size:14px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);padding:8px 12px;cursor:pointer}
+button:hover{border-color:var(--brass)}
+button.pri{background:var(--oxblood);border-color:var(--oxblood2);color:#fff}
+button.pri:hover{background:var(--oxblood2)}
+button.brass{background:transparent;border-color:var(--brass);color:var(--brass2)}
+button.icon{padding:6px 9px;min-width:34px}
+.muted{color:var(--muted);font-size:13px}
+.hint{color:var(--muted);font-size:12.5px;margin-top:6px}
+.err{color:var(--bad);font-size:12.5px}
+.okc{color:var(--ok)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid var(--line);border-radius:999px;font-size:13px;cursor:pointer;user-select:none;background:var(--panel2)}
+.chip input{accent-color:var(--brass)}
+.chip.on{border-color:var(--brass);color:var(--brass2)}
+.bars{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.bar{min-width:86px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);font-family:var(--display);font-size:18px}
+.bar small{display:block;font-family:var(--ui);font-size:10.5px;color:var(--muted)}
+.bar.bad{border-color:var(--bad)}
+.items{display:flex;flex-direction:column;gap:12px}
+.item{border:1px solid var(--line);border-left:4px solid var(--brass);border-radius:var(--r);background:var(--panel2);padding:10px 12px}
+.item.bass{border-left-color:#b9894a}
+.item.comp{border-left-color:var(--oxblood2)}
+.item.solo{border-left-color:#8fae7a}
+.item.off{opacity:.5}
+.item.drag{outline:2px dashed var(--brass)}
+.ihead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ihead .grip{cursor:grab;color:var(--muted);font-size:18px;padding:0 4px;user-select:none}
+.ihead .kind{font-family:var(--display);font-size:20px;font-weight:600}
+.ihead .sum{color:var(--muted);font-size:12.5px;flex:1 1 200px}
+.ihead .btns{display:flex;gap:6px;margin-left:auto}
+.knob{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:150px;flex:1 1 150px}
+.knob .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.knob .val{color:var(--brass2);font-variant-numeric:tabular-nums}
+.knob input[type=range]{width:100%;accent-color:var(--brass)}
+.knob.unset input[type=range]{opacity:.35}
+details{margin-top:10px}
+summary{cursor:pointer;color:var(--brass2);font-size:13px}
+.plan{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace;font-size:12px;background:#151417;border:1px solid var(--line);border-radius:8px;padding:10px;max-height:340px;overflow:auto;color:#d7d0c4}
+.preview li{margin:3px 0}
+.preview .where{color:var(--brass2)}
+footer.bar-actions{position:fixed;left:0;right:0;bottom:0;background:rgba(27,26,29,.96);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;flex-wrap:wrap;justify-content:center;z-index:5}
+.toast{position:fixed;left:50%;bottom:132px;transform:translateX(-50%);background:var(--oxblood);color:#fff;padding:8px 14px;border-radius:8px;font-size:13.5px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+.toast.show{opacity:1}
+.split{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:760px){ .split{grid-template-columns:1fr 1fr} }
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>Riff Planner</h1>
+  <p>Choose the bass lines, comping and solos for a riff-handouts set, where they go and how hard they are. Download the plan and give it to Claude.</p>
+</header>
+<main>
+
+<section class="card" id="piece">
+  <h2>The piece</h2>
+  <div class="row">
+    <label class="f grow">Piece<input type="text" id="pieceName" placeholder="Swing Thing"></label>
+    <label class="f">Key<select id="key"></select></label>
+    <label class="f">Tempo<input type="number" id="tempo" min="40" max="320" step="1" style="width:90px"></label>
+    <label class="f">Seed<input type="number" id="seed" min="1" step="1" style="width:100px"></label>
+    <button class="icon" id="newSeed" title="New take">New take</button>
+  </div>
+  <div class="hint">The seed fixes every take: the same plan and seed always give the same notes. New take picks a fresh seed.</div>
+</section>
+
+<section class="card" id="layout">
+  <h2>Your layout</h2>
+  <div class="row">
+    <label class="f grow">Open your concert MusicXML (from Sibelius) or a riff-handouts spec (.json)
+      <input type="file" id="layoutFile" accept=".musicxml,.xml,.json"></label>
+  </div>
+  <div class="hint" id="layoutInfo">Load your edited concert file so you can place generated exhibits after any of yours and take chords from them.</div>
+</section>
+
+<section class="card" id="chartCard">
+  <h2>The changes</h2>
+  <div class="row">
+    <label class="f grow">Chart: put a bar line ( | ) between bars, up to two chords a bar
+      <input type="text" id="chart" class="wide" placeholder="Gm Gm/F# | Gm/F Gm/E | Eb7 D7 | Gm | C9 | Cm7 F13 | Bb6 | Am7 D9"></label>
+  </div>
+  <div class="row">
+    <label class="f grow">Or take the chords from one of your exhibits<select id="fromEx"><option value="">Choose an exhibit with chord symbols</option></select></label>
+    <button id="useEx">Use these chords</button>
+  </div>
+  <div class="bars" id="barView"></div>
+  <div class="hint" id="chartInfo"></div>
+</section>
+
+<section class="card">
+  <div class="row" style="justify-content:space-between;align-items:center">
+    <h2 style="margin:0">Generated exhibits</h2>
+    <div class="row" style="gap:8px">
+      <button class="brass" data-add="bass">+ Bass line</button>
+      <button class="brass" data-add="comp">+ Comping</button>
+      <button class="brass" data-add="solo">+ Solo</button>
+    </div>
+  </div>
+  <div class="hint">Drag by the handle (or use the arrows) to set the order. Exhibits placed after the same exhibit of yours appear in this order.</div>
+  <div class="items" id="items" style="margin-top:12px"></div>
+</section>
+
+<section class="card">
+  <h2>What will be made</h2>
+  <ul class="preview" id="preview"></ul>
+  <details><summary>Show the plan file</summary><div class="plan" id="planText"></div></details>
+</section>
+
+</main>
+
+<footer class="bar-actions">
+  <button class="pri" id="download">Download plan</button>
+  <button id="copy">Copy plan</button>
+  <label class="chip" style="border-radius:8px;padding:8px 12px">Open plan<input type="file" id="openPlan" accept=".json" class="hide"></label>
+  <button id="clearAll">Start again</button>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* ------------------------------------------------------------------ vocabulary (from the engines) */
+const BOOKLETS = [['C','C'],['Bb','B♭'],['Eb','E♭'],['F','F horn'],['BC','Bass clef']];
+const BASS_FEELS = [['swing','Swing (four feel)'],['two','Two feel'],['ballad','Ballad'],['bossa','Bossa nova'],['tumbao','Tumbao']];
+const BASS_LEVELS = {1:'Root Notes',2:'2 Feel (Roots and Fifths)',3:'Chord Tone Walking',4:'Diatonic Scales',5:'Chromatic Approach',6:'Bebop Walk',7:'Embellished Swing'};
+const BASS_IDIOLECTS = ['walter_page','ray_brown','paul_chambers','sam_jones','ron_carter','charlie_haden','jimmy_garrison','israel_crosby','christian_mcbride'];
+const BASS_PRESETS = ['mainstream_swing','bebop_burn','ballad_classic','bossa','tumbao_salsa','modal_garrison','haden_folk'];
+const COMP_PRESETS = ['mainstream_trio','bebop_sideman','basie_floor','ballad_evans','modal_burn','bossa','montuno_salsa'];
+const COMP_FEELS = ['swing_four','two_feel','ballad','bossa','samba','montuno','bembe_68','modal','waltz'];
+const COMP_IDIOLECTS = ['basie','teddy_wilson','bud_powell','red_garland','wynton_kelly','bill_evans','mccoy_tyner','herbie_hancock','monk','horace_silver','ahmad_jamal','flanagan','kenny_barron','chick_corea','keith_jarrett','brad_mehldau'];
+const SOLO_PITCH = {1:'Chord tones and arpeggios',2:'Chromatic approach, bebop scales',3:'Enclosures, altered tones',4:'Dense chromaticism',5:'Sequences, pentatonics, upper structures',6:'Outside: side-slips, quartal lines'};
+const SOLO_RHYTHM = {1:'Relaxed quavers',2:'Builds with triplets',3:'Peaks into double time',4:'Dense semiquavers',5:'Crotchet triplets (3 over 2)',6:'Polyrhythms (3 over 4)'};
+const SOLO_INSTR = [['alto-sax','Alto sax','Eb'],['tenor-sax','Tenor sax','Bb'],['baritone-sax','Bari sax','Eb'],['trumpet','Trumpet','Bb'],['clarinet','Clarinet','Bb'],['trombone','Trombone','BC'],['double-bass','Double bass','BC'],['electric-bass','Electric bass','BC'],['piano','Piano','C'],['guitar','Guitar','C']];
+const KEYS = [['C','C major'],['G','G major'],['D','D major'],['A','A major'],['E','E major'],['F','F major'],['B-','B♭ major'],['E-','E♭ major'],['A-','A♭ major'],['D-','D♭ major'],
+  ['a','A minor'],['e','E minor'],['b','B minor'],['d','D minor'],['g','G minor'],['c','C minor'],['f','F minor'],['b-','B♭ minor'],['e-','E♭ minor'],['f#','F♯ minor'],['c#','C♯ minor']];
+const NOTE_NAMES = ['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];
+const nice = s => (s||'').replace(/_/g,' ');
+const midiName = m => NOTE_NAMES[m%12] + (Math.floor(m/12)-1);
+
+/* ------------------------------------------------------------------ state */
+const STORE = 'riffplanner.v1';
+let layout = {source:'', exhibits:[]};     // exhibits: [{title, bars:[[chords]]}]
+let S = load() || fresh();
+function fresh(){ return {version:1, piece:'', key:'g', tempo:160, seed:7, chart:{source:'', text:''}, items:[]}; }
+function load(){ try{ const x = JSON.parse(localStorage.getItem(STORE)||'null'); if(x && x.state) { layout = x.layout || layout; return x.state; } }catch(e){} return null; }
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify({state:S, layout})); }catch(e){} }
+let uid = Date.now();
+function newItem(engine){
+  const base = {id:'i'+(uid++), engine, bars:'', choruses:1, after:'', booklets:['C','Bb','Eb','F','BC'], page_break:false, title:'', text:'', tip:'', seed:null, off:false};
+  if(engine==='bass') return {...base, feel:'swing', level:3, idiolect:'', preset:'', chromaticism:null, embellishment:null, substitution:null, low_extension:false};
+  if(engine==='comp') return {...base, booklets:['C'], preset:'mainstream_trio', feel:'', idiolect:'', density:null, alteration:null, register:null, subs:null, embellish:null, no_bass:false};
+  return {...base, pitch:2, rhythm:2, feel:'swing', instruments:[], pro_range:false};
+}
+
+/* ------------------------------------------------------------------ chart */
+function parseChart(txt){
+  const bars = (txt||'').split('|').map(b=>b.trim()).filter(Boolean).map(b=>b.split(/\s+/).filter(Boolean));
+  const re = /^([A-G](#|b)?)(maj7|maj9|M7|ma7|m7b5|m7|m9|m11|m6|mi7|min7|m|mi|min|dim7|dim|o7|aug|\+|sus4|sus2|sus|7alt|7b9|7#9|7b13|7#11|7#5|7b5|13|11|9|7|6|69|add9)?(\/[A-G](#|b)?)?$/;
+  const problems = [];
+  bars.forEach((b,i)=>{ if(b.length>2) problems.push(`bar ${i+1} has ${b.length} chords (two at most)`); b.forEach(c=>{ if(!re.test(c)) problems.push(`bar ${i+1}: "${c}" may not be read`); }); });
+  return {bars, problems};
+}
+function renderChart(){
+  const {bars, problems} = parseChart(S.chart.text);
+  const v = document.getElementById('barView');
+  v.innerHTML = bars.map((b,i)=>`<div class="bar${b.length>2?' bad':''}"><small>${i+1}</small>${b.join(' &nbsp;')}</div>`).join('');
+  document.getElementById('chartInfo').innerHTML = bars.length ? `${bars.length} bars${S.chart.source?` from <i>${esc(S.chart.source)}</i>`:''}. ${problems.length?`<span class="err">${problems.map(esc).join('; ')}</span>`:'<span class="okc">All chords read.</span>'}` : 'Type the changes or take them from an exhibit.';
+}
+
+/* ------------------------------------------------------------------ layout import */
+const KIND = {'major':'','minor':'m','augmented':'aug','diminished':'dim','dominant':'7','major-seventh':'maj7','minor-seventh':'m7','diminished-seventh':'dim7','augmented-seventh':'7#5','half-diminished':'m7b5','major-minor':'m(maj7)','major-sixth':'6','minor-sixth':'m6','dominant-ninth':'9','major-ninth':'maj9','minor-ninth':'m9','dominant-11th':'11','major-11th':'maj11','minor-11th':'m11','dominant-13th':'13','major-13th':'maj13','minor-13th':'m13','suspended-second':'sus2','suspended-fourth':'sus4','power':'5'};
+function stepAlter(el, s, a){ const st = el.querySelector(s)?.textContent?.trim()||''; const al = parseInt(el.querySelector(a)?.textContent||'0',10)||0; return st + (al<0?'b'.repeat(-al):'#'.repeat(al)); }
+function readMusicXML(text){
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+  const part = doc.querySelector('part'); if(!part) throw new Error('No part in this file');
+  const exhibits = []; let cur = null; let divisions = 1, beats = 4, beatType = 4;
+  for(const m of part.querySelectorAll(':scope > measure')){
+    const d = m.querySelector('attributes divisions'); if(d) divisions = +d.textContent;
+    const ts = m.querySelector('attributes time'); if(ts){ beats = +ts.querySelector('beats').textContent; beatType = +ts.querySelector('beat-type').textContent; }
+    const barLen = beats * 4 / beatType * divisions;
+    let pos = 0; const chords = [];
+    for(const el of m.children){
+      if(el.tagName==='direction'){
+        for(const w of el.querySelectorAll('words')){
+          if((w.getAttribute('font-weight')||'')==='bold' && w.textContent.trim()){ cur = {title:w.textContent.trim(), bars:[]}; exhibits.push(cur); }
+        }
+      } else if(el.tagName==='harmony'){
+        const root = stepAlter(el,'root-step','root-alter'); const kind = el.querySelector('kind'); let k = kind ? (KIND[kind.textContent.trim()] ?? '') : '';
+        const bass = el.querySelector('bass') ? '/' + stepAlter(el,'bass-step','bass-alter') : '';
+        const off = el.querySelector('offset'); const at = pos + (off ? +off.textContent : 0);
+        if(root) chords.push({at, sym: root + k + bass});
+      } else if(el.tagName==='note'){
+        if(el.querySelector('chord') || el.querySelector('grace')) continue;
+        pos += +(el.querySelector('duration')?.textContent||0);
+      } else if(el.tagName==='backup'){ pos -= +(el.querySelector('duration')?.textContent||0); }
+      else if(el.tagName==='forward'){ pos += +(el.querySelector('duration')?.textContent||0); }
+    }
+    if(!cur){ cur = {title:'(before the first title)', bars:[]}; exhibits.push(cur); }
+    const first = chords.filter(c=>c.at < barLen/2).slice(0,1), second = chords.filter(c=>c.at >= barLen/2).slice(0,1);
+    cur.bars.push([...first, ...second].map(c=>c.sym));
+  }
+  return exhibits;
+}
+function readSpec(json){
+  const out = [];
+  for(const sec of json.sections||[]) for(const ex of sec.examples||[]){
+    const n = ex.music?.bars?.length || ex.music?.voices?.[0]?.length || 0; const bars = [];
+    for(let i=1;i<=n;i++){ const c = ex.music?.chords?.[String(i)]; bars.push(!c ? [] : typeof c==='string' ? [c] : Object.keys(c).sort((a,b)=>a-b).slice(0,2).map(k=>c[k])); }
+    out.push({title:ex.title, bars});
+  }
+  return out;
+}
+function carry(bars){ let last=null; return bars.map(b=>{ if(b.length){ last=b[b.length-1]; return b; } return last?[last]:[]; }); }
+function renderLayout(){
+  const info = document.getElementById('layoutInfo');
+  info.innerHTML = layout.exhibits.length ? `<span class="okc">${layout.exhibits.length} exhibits</span> from <i>${esc(layout.source)}</i>.` : 'Load your edited concert file so you can place generated exhibits after any of yours and take chords from them.';
+  const sel = document.getElementById('fromEx');
+  const withChords = layout.exhibits.map((e,i)=>({e,i})).filter(x=>x.e.bars.some(b=>b.length));
+  sel.innerHTML = '<option value="">Choose an exhibit with chord symbols</option>' + withChords.map(x=>`<option value="${x.i}">${esc(x.e.title)} (${x.e.bars.length} bars)</option>`).join('');
+}
+
+/* ------------------------------------------------------------------ items UI */
+function esc(s){ return String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function opts(list, val, blank){ return (blank?`<option value="">${blank}</option>`:'') + list.map(x=>{ const [v,l] = Array.isArray(x)?x:[x,nice(x)]; return `<option value="${esc(v)}"${String(v)===String(val??'')?' selected':''}>${esc(l)}</option>`; }).join(''); }
+function knob(it, key, label, min, max, step, fmt){
+  const set = it[key]!==null && it[key]!==undefined && it[key]!=='';
+  const v = set ? it[key] : (min+max)/2;
+  return `<div class="knob${set?'':' unset'}" data-k="${key}"><div class="top"><span>${label}</span><label class="chip" style="padding:2px 8px"><input type="checkbox" data-set="${key}"${set?' checked':''}> set</label></div>
+    <input type="range" min="${min}" max="${max}" step="${step}" value="${v}" data-range="${key}"${set?'':' disabled'}>
+    <span class="val">${set ? (fmt?fmt(v):v) : 'engine default'}</span></div>`;
+}
+function afterOptions(val){
+  const titles = layout.exhibits.map(e=>e.title).filter(t=>!t.startsWith('('));
+  if(val && !titles.includes(val)) titles.unshift(val);
+  return `<option value="">At the end, in a new "Rhythm section and solo" section</option>` + titles.map(t=>`<option value="${esc(t)}"${t===val?' selected':''}>After: ${esc(t)}</option>`).join('');
+}
+function summary(it){
+  if(it.engine==='bass') return `${BASS_FEELS.find(f=>f[0]===it.feel)?.[1]||it.feel} · level ${it.level} ${BASS_LEVELS[it.level]||''}${it.idiolect?' · '+nice(it.idiolect):''}`;
+  if(it.engine==='comp') return `${nice(it.preset||it.feel||'comping')}${it.idiolect?' · '+nice(it.idiolect):''}`;
+  return `pitch ${it.pitch} · rhythm ${it.rhythm}${it.instruments.length?' · '+it.instruments.length+' instrument versions':' · concert for everyone'}`;
+}
+function itemHTML(it, i, n){
+  const name = {bass:'Bass line', comp:'Comping', solo:'Developed solo'}[it.engine];
+  const common = `
+    <div class="row">
+      <label class="f grow">Where it goes<select data-f="after">${afterOptions(it.after)}</select></label>
+      <label class="f">Bars<input type="text" data-f="bars" value="${esc(it.bars)}" placeholder="all" style="width:96px" title="e.g. 1-8 or 1-4,9-12"></label>
+      <label class="f">Choruses<select data-f="choruses">${opts([1,2,3,4,6,8].map(x=>[x,x]), it.choruses)}</select></label>
+      <label class="chip${it.page_break?' on':''}" style="align-self:flex-end"><input type="checkbox" data-f="page_break"${it.page_break?' checked':''}> new page</label>
+    </div>
+    <div class="row"><div class="f" style="font-size:12px;color:var(--muted)">Booklets</div>
+      <div class="chips">${BOOKLETS.map(([v,l])=>`<label class="chip${it.booklets.includes(v)?' on':''}"><input type="checkbox" data-book="${v}"${it.booklets.includes(v)?' checked':''}> ${l}</label>`).join('')}</div></div>`;
+  let body = '';
+  if(it.engine==='bass') body = `
+    <div class="row">
+      <label class="f">Feel<select data-f="feel">${opts(BASS_FEELS, it.feel)}</select></label>
+      <label class="f grow">Level<select data-f="level" data-num>${opts(Object.entries(BASS_LEVELS).map(([k,v])=>[k, k+'  '+v]), it.level)}</select></label>
+      <label class="f">Player<select data-f="idiolect">${opts(BASS_IDIOLECTS, it.idiolect, 'None')}</select></label>
+      <label class="f">Preset<select data-f="preset">${opts(BASS_PRESETS, it.preset, 'None')}</select></label>
+    </div>
+    <div class="row">${knob(it,'chromaticism','Chromaticism (Haden to Chambers)',0,1,0.05)}${knob(it,'embellishment','Embellishment',0,1,0.05)}${knob(it,'substitution','Substitutions',0,1,0.05)}
+      <label class="chip${it.low_extension?' on':''}" style="align-self:flex-end"><input type="checkbox" data-f="low_extension"${it.low_extension?' checked':''}> low C extension</label></div>`;
+  if(it.engine==='comp') body = `
+    <div class="row">
+      <label class="f">Preset<select data-f="preset">${opts(COMP_PRESETS, it.preset, 'None')}</select></label>
+      <label class="f">Feel<select data-f="feel">${opts(COMP_FEELS, it.feel, 'From preset')}</select></label>
+      <label class="f">Player<select data-f="idiolect">${opts(COMP_IDIOLECTS, it.idiolect, 'None')}</select></label>
+      <label class="chip${it.no_bass?' on':''}" style="align-self:flex-end"><input type="checkbox" data-f="no_bass"${it.no_bass?' checked':''}> no bassist</label>
+    </div>
+    <div class="row">${knob(it,'density','Chords per bar (Basie 0.35 to 3)',0.35,3,0.05)}${knob(it,'alteration','Alterations',0,1,0.05)}
+      ${knob(it,'register','Register (top note)',60,84,1,midiName)}${knob(it,'subs','Substitutions',0,1,0.05)}${knob(it,'embellish','Fills',0,1,0.05)}</div>`;
+  if(it.engine==='solo') body = `
+    <div class="row">
+      <label class="f grow">Pitch difficulty<select data-f="pitch" data-num>${opts(Object.entries(SOLO_PITCH).map(([k,v])=>[k,k+'  '+v]), it.pitch)}</select></label>
+      <label class="f grow">Rhythm difficulty<select data-f="rhythm" data-num>${opts(Object.entries(SOLO_RHYTHM).map(([k,v])=>[k,k+'  '+v]), it.rhythm)}</select></label>
+      <label class="f">Feel<select data-f="feel">${opts([['swing','Swing'],['straight','Straight quavers']], it.feel)}</select></label>
+    </div>
+    <div class="row"><div class="f" style="font-size:12px;color:var(--muted)">One version per instrument, in its range and booklet (none ticked: one concert version for the booklets above)</div>
+      <div class="chips">${SOLO_INSTR.map(([v,l,b])=>`<label class="chip${it.instruments.includes(v)?' on':''}"><input type="checkbox" data-inst="${v}"${it.instruments.includes(v)?' checked':''}> ${l}</label>`).join('')}</div>
+      <label class="chip${it.pro_range?' on':''}"><input type="checkbox" data-f="pro_range"${it.pro_range?' checked':''}> pro range</label></div>`;
+  return `<div class="item ${it.engine}${it.off?' off':''}" draggable="true" data-i="${i}">
+    <div class="ihead"><span class="grip" title="Drag to reorder">&#8942;&#8942;</span><span class="kind">${name}</span><span class="sum">${esc(summary(it))}</span>
+      <span class="btns"><button class="icon" data-act="up"${i===0?' disabled':''} title="Move up">&#8593;</button><button class="icon" data-act="down"${i===n-1?' disabled':''} title="Move down">&#8595;</button>
+      <button class="icon" data-act="dup" title="Duplicate">Copy</button><button class="icon" data-act="off" title="Leave out of the plan">${it.off?'Include':'Skip'}</button><button class="icon" data-act="del" title="Delete">&#10005;</button></span></div>
+    ${body}${common}
+    <details${(it.title||it.text||it.tip||it.seed)?' open':''}><summary>Title, instructions and seed</summary>
+      <div class="row"><label class="f grow">Title (blank: automatic)<input type="text" class="wide" data-f="title" value="${esc(it.title)}"></label>
+      <label class="f">Seed (blank: piece seed)<input type="number" data-f="seed" value="${it.seed??''}" style="width:110px"></label></div>
+      <div class="row"><label class="f grow">Instructions (blank: automatic)<textarea data-f="text">${esc(it.text)}</textarea></label></div>
+      <div class="row"><label class="f grow">Tip box<input type="text" class="wide" data-f="tip" value="${esc(it.tip)}"></label></div>
+    </details></div>`;
+}
+function renderItems(){
+  const box = document.getElementById('items');
+  box.innerHTML = S.items.length ? S.items.map((it,i)=>itemHTML(it,i,S.items.length)).join('') : '<div class="muted">Nothing yet. Add a bass line, comping or a solo.</div>';
+}
+
+/* ------------------------------------------------------------------ plan + preview */
+function buildPlan(){
+  const {bars} = parseChart(S.chart.text);
+  return {version:1, piece:S.piece||'Piece', key:S.key, tempo:+S.tempo||160, seed:+S.seed||7,
+    chart:{source:S.chart.source||'', bars},
+    items:S.items.filter(it=>!it.off).map(it=>{ const o = {...it}; delete o.id; delete o.off;
+      for(const k of Object.keys(o)) if(o[k]===''||o[k]===null) delete o[k];
+      if(o.engine!=='solo' || !(o.instruments||[]).length){} else delete o.booklets;
+      return o; })};
+}
+function rangeCount(spec, n){ if(!spec) return n; let c=0; for(const p of String(spec).split(',')){ const [a,b] = p.split('-').map(Number); if(b) c += Math.max(0, Math.min(b,n)-a+1); else if(a) c += (a<=n?1:0); } return c; }
+function renderPreview(){
+  const plan = buildPlan(); const n = plan.chart.bars.length;
+  const groups = {};
+  for(const it of plan.items){
+    const where = it.after || 'At the end'; (groups[where] ||= []).push(it);
+  }
+  const lines = [];
+  for(const [where, its] of Object.entries(groups)){
+    lines.push(`<li><span class="where">${esc(where==='At the end'?where:'After '+where)}</span><ul>${its.map(it=>{
+      const bars = rangeCount(it.bars, n) * (it.choruses||1);
+      const books = it.engine==='solo' && (it.instruments||[]).length ? it.instruments.map(v=>SOLO_INSTR.find(x=>x[0]===v)[1]+' ('+BOOKLETS.find(b=>b[0]===SOLO_INSTR.find(x=>x[0]===v)[2])[1]+')').join(', ')
+        : (it.booklets||[]).length===5 ? 'every booklet' : (it.booklets||[]).map(b=>BOOKLETS.find(x=>x[0]===b)[1]).join(', ');
+      return `<li>${esc({bass:'Bass line',comp:'Comping',solo:'Solo'}[it.engine])}: ${esc(summary({instruments:[],...it}))}, ${bars} bars, ${esc(books)}${it.page_break?', new page':''}</li>`; }).join('')}</ul></li>`);
+  }
+  document.getElementById('preview').innerHTML = lines.join('') || '<li class="muted">Add exhibits to see the plan.</li>';
+  document.getElementById('planText').textContent = JSON.stringify(plan, null, 1);
+  save();
+}
+function renderAll(){ renderPiece(); renderLayout(); renderChart(); renderItems(); renderPreview(); }
+function renderPiece(){
+  document.getElementById('pieceName').value = S.piece; document.getElementById('key').innerHTML = opts(KEYS, S.key);
+  document.getElementById('tempo').value = S.tempo; document.getElementById('seed').value = S.seed; document.getElementById('chart').value = S.chart.text;
+}
+
+/* ------------------------------------------------------------------ events */
+const $ = id => document.getElementById(id);
+$('pieceName').oninput = e=>{ S.piece = e.target.value; renderPreview(); };
+$('key').onchange = e=>{ S.key = e.target.value; renderPreview(); };
+$('tempo').oninput = e=>{ S.tempo = +e.target.value; renderPreview(); };
+$('seed').oninput = e=>{ S.seed = +e.target.value; renderPreview(); };
+$('newSeed').onclick = ()=>{ S.seed = 1 + Math.floor(Math.random()*999999); $('seed').value = S.seed; renderPreview(); toast('New take: seed '+S.seed); };
+$('chart').oninput = e=>{ S.chart.text = e.target.value; S.chart.source = ''; renderChart(); renderPreview(); };
+$('useEx').onclick = ()=>{ const i = $('fromEx').value; if(i==='') return toast('Choose an exhibit first');
+  const ex = layout.exhibits[+i]; const bars = carry(ex.bars); S.chart.text = bars.map(b=>b.join(' ')).join(' | '); S.chart.source = ex.title;
+  $('chart').value = S.chart.text; renderChart(); renderPreview(); toast(`${bars.length} bars from ${ex.title}`); };
+$('layoutFile').onchange = async e=>{ const f = e.target.files[0]; if(!f) return;
+  try{ const txt = await f.text();
+    layout = {source:f.name, exhibits: f.name.toLowerCase().endsWith('.json') ? readSpec(JSON.parse(txt)) : readMusicXML(txt)};
+    if(!S.piece){ const m = f.name.match(/^([A-Za-z]+)/); }
+    renderLayout(); renderItems(); renderPreview(); toast(`Loaded ${layout.exhibits.length} exhibits`);
+  }catch(err){ toast('Could not read that file: '+err.message); } e.target.value=''; };
+document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{ S.items.push(newItem(b.dataset.add)); renderItems(); renderPreview();
+  document.querySelector('#items .item:last-child')?.scrollIntoView({behavior:'smooth', block:'center'}); });
+
+const items = $('items');
+items.addEventListener('input', e=>{
+  const card = e.target.closest('.item'); if(!card) return; const it = S.items[+card.dataset.i];
+  const t = e.target;
+  if(t.dataset.f){ let v = t.type==='checkbox' ? t.checked : t.value; if(t.dataset.num!==undefined || t.type==='number' || t.dataset.f==='choruses') v = v===''?null:+v; it[t.dataset.f] = v;
+    if(t.type==='checkbox') t.closest('.chip')?.classList.toggle('on', t.checked);
+    if(['feel','level','preset','idiolect','pitch','rhythm'].includes(t.dataset.f)) card.querySelector('.sum').textContent = summary(it); }
+  if(t.dataset.range){ const k = t.dataset.range; it[k] = +t.value; const kn = t.closest('.knob'); kn.querySelector('.val').textContent = k==='register'?midiName(+t.value):t.value; }
+  if(t.dataset.set){ const k = t.dataset.set; const kn = t.closest('.knob'); const r = kn.querySelector('input[type=range]');
+    if(t.checked){ it[k] = +r.value; r.disabled = false; kn.classList.remove('unset'); kn.querySelector('.val').textContent = k==='register'?midiName(+r.value):r.value; }
+    else { it[k] = null; r.disabled = true; kn.classList.add('unset'); kn.querySelector('.val').textContent = 'engine default'; } }
+  if(t.dataset.book){ const b = t.dataset.book; it.booklets = t.checked ? [...new Set([...it.booklets, b])] : it.booklets.filter(x=>x!==b); t.closest('.chip').classList.toggle('on', t.checked); }
+  if(t.dataset.inst){ const v = t.dataset.inst; it.instruments = t.checked ? [...new Set([...it.instruments, v])] : it.instruments.filter(x=>x!==v); t.closest('.chip').classList.toggle('on', t.checked); card.querySelector('.sum').textContent = summary(it); }
+  renderPreview();
+});
+items.addEventListener('change', e=>{ if(e.target.matches('select')) items.dispatchEvent(new Event('input', {bubbles:true})) || null; });
+items.addEventListener('click', e=>{
+  const b = e.target.closest('[data-act]'); if(!b) return; const i = +b.closest('.item').dataset.i;
+  const act = b.dataset.act;
+  if(act==='up' && i>0) [S.items[i-1], S.items[i]] = [S.items[i], S.items[i-1]];
+  if(act==='down' && i<S.items.length-1) [S.items[i+1], S.items[i]] = [S.items[i], S.items[i+1]];
+  if(act==='dup') S.items.splice(i+1, 0, {...structuredClone(S.items[i]), id:'i'+(uid++)});
+  if(act==='off') S.items[i].off = !S.items[i].off;
+  if(act==='del' && confirmDel(i)) S.items.splice(i,1);
+  renderItems(); renderPreview();
+});
+function confirmDel(i){ return true; }
+let dragFrom = null;
+items.addEventListener('dragstart', e=>{ const c = e.target.closest('.item'); if(!c) return; dragFrom = +c.dataset.i; c.classList.add('drag'); e.dataTransfer.effectAllowed='move'; });
+items.addEventListener('dragover', e=>{ if(dragFrom===null) return; e.preventDefault(); });
+items.addEventListener('drop', e=>{ e.preventDefault(); const c = e.target.closest('.item'); if(!c || dragFrom===null) return; const to = +c.dataset.i;
+  const [m] = S.items.splice(dragFrom,1); S.items.splice(to,0,m); dragFrom = null; renderItems(); renderPreview(); });
+items.addEventListener('dragend', ()=>{ dragFrom = null; document.querySelectorAll('.item.drag').forEach(x=>x.classList.remove('drag')); });
+
+function fileName(){ return (S.piece||'piece').replace(/[^A-Za-z0-9]+/g,'') + '_plan.json'; }
+$('download').onclick = ()=>{ const {problems} = parseChart(S.chart.text); if(!parseChart(S.chart.text).bars.length) return toast('Add the changes first');
+  if(!S.items.filter(i=>!i.off).length) return toast('Add at least one exhibit');
+  const blob = new Blob([JSON.stringify(buildPlan(), null, 1)], {type:'application/json'}); const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = fileName(); a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  toast(problems.length ? 'Downloaded. Check the chord warnings.' : 'Plan downloaded'); };
+$('copy').onclick = async ()=>{ try{ await navigator.clipboard.writeText(JSON.stringify(buildPlan(), null, 1)); toast('Plan copied'); }catch(e){ toast('Copy not allowed here; use Download'); } };
+$('openPlan').onchange = async e=>{ const f = e.target.files[0]; if(!f) return;
+  try{ const p = JSON.parse(await f.text());
+    S = {version:1, piece:p.piece||'', key:p.key||'g', tempo:p.tempo||160, seed:p.seed||7, chart:{source:p.chart?.source||'', text:(p.chart?.bars||[]).map(b=>b.join(' ')).join(' | ')},
+      items:(p.items||[]).map(it=>({...newItem(it.engine), ...it, id:'i'+(uid++)}))};
+    renderAll(); toast('Plan opened');
+  }catch(err){ toast('Not a plan file: '+err.message); } e.target.value=''; };
+$('clearAll').onclick = ()=>{ if(!S.items.length && !S.chart.text) return; S = fresh(); layout = {source:'', exhibits:[]}; renderAll(); toast('Cleared'); };
+let tt; function toast(m){ const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(()=>t.classList.remove('show'), 2200); }
+
+renderAll();
+if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
